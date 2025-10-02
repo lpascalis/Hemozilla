@@ -1,11 +1,11 @@
 {
-  "short_name": "Registry",
-  "name": "Structural Registry (PWA) — unified",
+  "short_name": "HEMOZILLA",
+  "name": "HEMOZILLA — Structural Registry (PWA)",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "background_color": "#0d1117",
-  "theme_color": "#0a84ff",
+  "theme_color": "#b91c1c",
   "icons": [
     {
       "src": "assets/icons/icon-192x192.png",

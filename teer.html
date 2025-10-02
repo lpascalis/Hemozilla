@@ -3,11 +3,16 @@
 <html lang="it">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>TEER Mitralico • Structural Registry</title>
+  <title>HEMOZILLA • TEER Mitralico</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="assets/icons/icon-64x64.png" sizes="64x64">
 </head>
 <body>
-  <header><h1>TEER Mitralico</h1><p class="sub">Lista, urgenze, procedure, follow-up</p></header>
+  <header>
+    <img src="assets/icons/icon-180x180.png" alt="HEMOZILLA logo" class="logo">
+    <h1>HEMOZILLA — TEER Mitralico</h1>
+    <p class="sub">Lista, urgenze, procedure, follow-up</p>
+  </header>
   <main>
     <section class="card">
       <a href="./" class="badge">⟵ Moduli</a>
@@ -33,7 +38,7 @@
         <div><label>Data nascita</label><input name="birth_date" type="date"></div>
         <div><label>Sesso</label><select name="sex"><option></option><option>M</option><option>F</option></select></div>
         <div><label>Note</label><textarea name="notes" rows="2"></textarea></div>
-        <div style="grid-column:1/-1" class="row"><button type="submit" class="primary">Inserisci in lista attiva</button><span id="msgNew" class="muted small"></span></div>
+        <div style="grid-column:1/-1" class="row"><button type="submit">Inserisci in lista attiva</button><span id="msgNew" class="muted small"></span></div>
       </form>
     </section>
 
@@ -46,7 +51,7 @@
         <div><label>Centro</label><input name="center"></div>
         <div><label>Operatore</label><input name="assigned_operator"></div>
         <div style="grid-column:1/-1"><label>Note triage</label><textarea name="triage_notes" rows="2"></textarea></div>
-        <div style="grid-column:1/-1" class="row"><button type="submit" class="primary">Inserisci in urgenze</button><span id="msgUrg" class="muted small"></span></div>
+        <div style="grid-column:1/-1" class="row"><button type="submit">Inserisci in urgenze</button><span id="msgUrg" class="muted small"></span></div>
       </form>
     </section>
 
@@ -61,7 +66,7 @@
           </select>
         </div>
         <div style="grid-column:1/-1"><label>Valore</label><input name="value"></div>
-        <div style="grid-column:1/-1" class="row"><button type="submit" class="primary">Salva</button><span id="msgUpd" class="muted small"></span></div>
+        <div style="grid-column:1/-1" class="row"><button type="submit">Salva</button><span id="msgUpd" class="muted small"></span></div>
       </form>
       <div class="row small"><button id="btnFetch" class="ghost">Recupera paziente (prefill)</button><span id="msgFetch" class="muted small"></span></div>
     </section>
@@ -74,7 +79,7 @@
         <div><label>Data procedura</label><input name="procedure_date" type="date" required></div>
         <div><label>Device</label><input name="device_brand"></div>
         <div><label>Size</label><input name="device_size_mm" type="number" step="0.1"></div>
-        <div style="grid-column:1/-1" class="row"><button type="submit" class="primary">Conferma esecuzione</button><span id="msgExec" class="muted small"></span></div>
+        <div style="grid-column:1/-1" class="row"><button type="submit">Conferma esecuzione</button><span id="msgExec" class="muted small"></span></div>
       </form>
     </section>
 
@@ -84,7 +89,7 @@
     </section>
   </main>
 
-  <footer><small>© 2025 • Registry PWA</small></footer>
+  <footer><small>© 2025 • HEMOZILLA</small></footer>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
