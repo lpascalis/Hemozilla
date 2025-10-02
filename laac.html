@@ -83,6 +83,15 @@
       </form>
     </section>
 
+    
+    <section class="card" id="errCard" style="display:none">
+      <h3>Messaggio</h3>
+      <pre id="errMsg" class="small" style="white-space:pre-wrap"></pre>
+    </section>
+    <script>
+      function showMsg(txt){ const c=document.getElementById('errCard'); const m=document.getElementById('errMsg'); m.textContent=txt; c.style.display='block'; }
+    </script>
+    
     <section class="card">
       <h2>Elenco</h2>
       <div id="listWrap" class="muted small">Premi un pulsante elenco sopra.</div>
@@ -99,16 +108,16 @@
     document.getElementById('whichUrl').textContent = (sessionStorage.getItem('API_URL')||'') || 'non impostato';
     const listWrap = document.getElementById('listWrap');
     function renderTable(rows){ if(!rows||!rows.length){ listWrap.textContent='Nessun dato'; return;} const cols=Object.keys(rows[0]); let html='<table class="table"><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'; rows.forEach(r=>{ html+='<tr>'+cols.map(c=>'<td>'+(r[c]??'')+'</td>').join('')+'</tr>';}); html+='</tbody></table>'; listWrap.innerHTML=html; }
-    document.getElementById('btnListActive').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_Active', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
-    document.getElementById('btnListUrgent').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_Emergencies', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
-    document.getElementById('btnListAll').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_General', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
-    document.getElementById('btnListProcedures').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_Procedures', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
-    document.getElementById('btnListFU').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_FollowUp', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
-    document.getElementById('formNew').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addLAAC_Patient', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgNew').textContent = r.ok?'Inserito ✅':(r.error||'Errore'); if(r.ok) e.target.reset(); });
-    document.getElementById('formUrg').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addLAAC_Urgency', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgUrg').textContent = r.ok?'Inserita ✅':(r.error||'Errore'); if(r.ok) e.target.reset(); });
-    document.getElementById('formUpdate').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPost('updateLAAC_FieldRev', payload, sessionStorage.getItem('PASS_APP')); document.getElementById('msgUpd').textContent = r.ok?'Aggiornato ✅ (rev '+r.rev+')':(r.error||'Errore'); });
-    document.getElementById('btnFetch').addEventListener('click', async ()=>{ const pt=document.querySelector('#formUpdate [name=pt_id]').value; if(!pt){ document.getElementById('msgFetch').textContent='Inserisci pt_id'; return;} const r=await apiPost('getLAAC_ById', {pt_id:pt}, sessionStorage.getItem('PASS_APP')); if(r.ok){ document.querySelector('#formUpdate [name=rev]').value = r.data.rev || 0; document.getElementById('msgFetch').textContent='Prefill OK'; } else { document.getElementById('msgFetch').textContent='Non trovato'; } });
-    document.getElementById('formExec').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('certifyLAAC_ExecutedRev', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgExec').textContent = r.ok?('Registrata ✅ (rev '+r.rev+')'):(r.error||'Errore'); });
+    document.getElementById('btnListActive').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_Active', {}, sessionStorage.getItem('PASS_APP')); if(!res.ok){ showMsg(res.error||'Errore'); } renderTable(res.ok?res.data:[]); });
+    document.getElementById('btnListUrgent').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_Emergencies', {}, sessionStorage.getItem('PASS_APP')); if(!res.ok){ showMsg(res.error||'Errore'); } renderTable(res.ok?res.data:[]); });
+    document.getElementById('btnListAll').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_General', {}, sessionStorage.getItem('PASS_APP')); if(!res.ok){ showMsg(res.error||'Errore'); } renderTable(res.ok?res.data:[]); });
+    document.getElementById('btnListProcedures').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_Procedures', {}, sessionStorage.getItem('PASS_APP')); if(!res.ok){ showMsg(res.error||'Errore'); } renderTable(res.ok?res.data:[]); });
+    document.getElementById('btnListFU').addEventListener('click', async()=>{ const res=await apiPost('listLAAC_FollowUp', {}, sessionStorage.getItem('PASS_APP')); if(!res.ok){ showMsg(res.error||'Errore'); } renderTable(res.ok?res.data:[]); });
+    document.getElementById('formNew').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addLAAC_Patient', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgNew').textContent = r.ok?'Inserito ✅':(r.error||'Errore'); if(!r.ok){ showMsg(r.error||'Errore'); } if(r.ok) e.target.reset(); });
+    document.getElementById('formUrg').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addLAAC_Urgency', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgUrg').textContent = r.ok?'Inserita ✅':(r.error||'Errore'); if(!r.ok){ showMsg(r.error||'Errore'); } if(r.ok) e.target.reset(); });
+    document.getElementById('formUpdate').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPost('updateLAAC_FieldRev', payload, sessionStorage.getItem('PASS_APP')); document.getElementById('msgUpd').textContent = r.ok?'Aggiornato ✅ (rev '+r.rev+')':(r.error||'Errore'); if(!r.ok){ showMsg(r.error||'Errore'); } });
+    document.getElementById('btnFetch').addEventListener('click', async ()=>{ const pt=document.querySelector('#formUpdate [name=pt_id]').value; if(!pt){ document.getElementById('msgFetch').textContent='Inserisci pt_id'; return;} const r=await apiPost('getLAAC_ById', {pt_id:pt}, sessionStorage.getItem('PASS_APP')); if(r.ok){ document.querySelector('#formUpdate [name=rev]').value = r.data.rev || 0; document.getElementById('msgFetch').textContent='Prefill OK'; } else { document.getElementById('msgFetch').textContent='Non trovato'; showMsg(r.error||'Non trovato'); } });
+    document.getElementById('formExec').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('certifyLAAC_ExecutedRev', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgExec').textContent = r.ok?('Registrata ✅ (rev '+r.rev+')'):(r.error||'Errore'); if(!r.ok){ showMsg(r.error||'Errore'); } });
   </script>
 </body>
 </html>
