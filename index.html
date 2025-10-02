@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a84ff"><title>Structural Registry • PWA</title>
+  <link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header><h1>🫀 Structural Registry</h1><p class="sub">Scegli il modulo dopo l’accesso</p></header>
+<main>
+  <section id="loginCard" class="card">
+    <h2>Accesso App</h2>
+    <form id="loginForm">
+      <label>Password app (lettura/operatività)</label>
+      <input id="passApp" type="password" placeholder="emodinamica" required>
+      <div class="row"><button type="submit" class="primary">Entra</button></div>
+      <p id="loginMsg" class="muted small"></p>
+    </form>
+  </section>
+
+  <section id="moduleCard" class="card hidden">
+    <div class="row" style="justify-content:space-between">
+      <h2>Moduli</h2>
+      <div class="row">
+        <input id="passWrite" type="password" placeholder="password operazioni protette (strutturale)">
+        <button id="btnSetWrite" class="ghost small">Sblocca</button>
+      </div>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>TAVI</h3>
+        <p class="muted small">Lavora sul foglio TAVI.</p>
+        <div class="row small">
+          <input id="urlTAVI" placeholder="URL Apps Script TAVI">
+          <button class="ghost" onclick="saveURL('TAVI')">Salva URL</button>
+        </div>
+        <a href="tavi.html"><button class="primary" onclick="setModule('TAVI')">Apri</button></a>
+      </div>
+      <div class="card">
+        <h3>TEER Mitralico</h3>
+        <p class="muted small">Lavora sul foglio TEER.</p>
+        <div class="row small">
+          <input id="urlTEER" placeholder="URL Apps Script TEER">
+          <button class="ghost" onclick="saveURL('TEER')">Salva URL</button>
+        </div>
+        <a href="teer.html"><button class="primary" onclick="setModule('TEER')">Apri</button></a>
+      </div>
+      <div class="card">
+        <h3>LAAC</h3>
+        <p class="muted small">Lavora sul foglio LAAC.</p>
+        <div class="row small">
+          <input id="urlLAAC" placeholder="URL Apps Script LAAC">
+          <button class="ghost" onclick="saveURL('LAAC')">Salva URL</button>
+        </div>
+        <a href="laac.html"><button class="primary" onclick="setModule('LAAC')">Apri</button></a>
+      </div>
+    </div>
+
+    <details class="small" style="margin-top:12px">
+      <summary>Impostazioni avanzate</summary>
+      <p>Se non imposti gli URL manualmente, verranno usati quelli di default da <code>config.js</code>.</p>
+    </details>
+    <p class="muted small">Stato operazioni protette: <span id="writeState" class="warn">BLOCCATE</span></p>
+  </section>
+</main>
+<footer><small>© 2025 • Registry PWA</small></footer>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script src="api.js"></script>
+</body></html>
