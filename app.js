@@ -10,24 +10,22 @@ function saveURL(k){ const el=document.getElementById('url'+k); if(!el) return; 
 loginForm?.addEventListener('submit', async (e)=>{ e.preventDefault(); const p=passApp.value.trim(); if(!p){ loginMsg.textContent='Inserisci la password'; return; } sessionStorage.setItem('PASS_APP', p); setLoggedIn(true); loginMsg.textContent='OK'; });
 // Write unlock still validates against backend of currently selected module (if any)
 
-// Sblocco scrittura con feedback chiaro
-btnSetWrite?.addEventListener('click', async ()=>{
-  const pw = passWrite.value.trim();
-  const api = sessionStorage.getItem('API_URL');
-  if(!api){
-    alert('Seleziona prima un modulo (TAVI/TEER/LAAC) e assicurati che l\'URL backend sia impostato).');
+// Sblocco scrittura: verifica locale (senza ping al backend)
+btnSetWrite?.addEventListener('click', ()=>{
+  const pw = (passWrite.value || '').trim();
+  if(!pw){
+    alert('Inserisci la password di scrittura (strutturale).');
     return;
   }
-  const r = await apiPost('pingWrite', {}, sessionStorage.getItem('PASS_APP'), pw);
-  if(r && r.ok){
+  if(pw === 'strutturale'){
     sessionStorage.setItem('PASS_WRITE', pw);
     writeState.textContent='SBLOCCATE';
     writeState.classList.remove('warn'); writeState.classList.add('ok');
     alert('Operazioni protette sbloccate ✅');
-  }else{
+  } else {
     sessionStorage.removeItem('PASS_WRITE');
     writeState.textContent='BLOCCATE';
     writeState.classList.add('warn');
-    alert('Password scrittura non valida oppure backend non raggiungibile.');
+    alert('Password di scrittura non corretta.');
   }
 });

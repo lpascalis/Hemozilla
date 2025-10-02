@@ -31,7 +31,7 @@
     <section class="card">
       <h2>Nuovo paziente in lista attiva (protetto)</h2>
       <form id="formNew" class="grid grid-2">
-        <div><label>pt_id <span class="muted small">(lascia vuoto per generazione automatica)</span></label><input name="pt_id" placeholder="(auto)"></div>
+        <div><label>pt_id</label><input name="pt_id" required></div>
         <div><label>Centro</label><input name="center" placeholder="ISMETT"></div>
         <div><label>Cognome</label><input name="surname"></div>
         <div><label>Nome</label><input name="name"></div>
@@ -45,7 +45,7 @@
     <section class="card">
       <h2>Nuova Urgenza (protetto)</h2>
       <form id="formUrg" class="grid grid-2">
-        <div><label>pt_id <span class="muted small">(lascia vuoto per generazione automatica)</span></label><input name="pt_id" placeholder="(auto)"></div>
+        <div><label>pt_id</label><input name="pt_id" required></div>
         <div><label>Livello urgenza</label><select name="urgency_level"><option>urgent</option><option>emergency</option><option>salvage</option></select></div>
         <div><label>Motivo</label><input name="reason"></div>
         <div><label>Centro</label><input name="center"></div>
@@ -58,7 +58,7 @@
     <section class="card">
       <h2>Aggiorna dati clinici (con controllo versione)</h2>
       <form id="formUpdate" class="grid grid-2">
-        <div><label>pt_id <span class="muted small">(lascia vuoto per generazione automatica)</span></label><input name="pt_id" placeholder="(auto)"></div>
+        <div><label>pt_id</label><input name="pt_id" required></div>
         <div><label>rev corrente</label><input name="rev" required placeholder="es. 0"></div>
         <div><label>Campo</label>
           <select name="field">
@@ -74,7 +74,7 @@
     <section class="card">
       <h2>Certifica procedura eseguita (protetto)</h2>
       <form id="formExec" class="grid grid-2">
-        <div><label>pt_id <span class="muted small">(lascia vuoto per generazione automatica)</span></label><input name="pt_id" placeholder="(auto)"></div>
+        <div><label>pt_id</label><input name="pt_id" required></div>
         <div><label>rev corrente</label><input name="rev" required placeholder="es. 0"></div>
         <div><label>Data procedura</label><input name="procedure_date" type="date" required></div>
         <div><label>Device</label><input name="device_brand"></div>
@@ -87,33 +87,6 @@
       <h2>Elenco</h2>
       <div id="listWrap" class="muted small">Premi un pulsante elenco sopra.</div>
     </section>
-  
-    <section class="card" id="writeHint" style="display:none">
-      <h3>Operazioni protette bloccate</h3>
-      <p class="small muted">Per inserire nuovi pazienti / urgenze / certificare procedure, sblocca con la password <code>strutturale</code> nella home oppure qui sotto.</p>
-      <div class="row">
-        <input id="passWriteMod" type="password" placeholder="strutturale">
-        <button id="btnSetWriteMod" class="ghost small">Sblocca qui</button>
-        <span class="small" id="writeStateMod">BLOCCATE</span>
-      </div>
-    </section>
-    <script>
-      // Module unlock helper
-      const writeHint = document.getElementById('writeHint');
-      if(!sessionStorage.getItem('PASS_WRITE')) writeHint.style.display='block';
-      document.getElementById('btnSetWriteMod')?.addEventListener('click', async ()=>{
-        const pw = document.getElementById('passWriteMod').value.trim();
-        const r = await apiPost('pingWrite', {}, sessionStorage.getItem('PASS_APP'), pw);
-        if(r && r.ok){
-          sessionStorage.setItem('PASS_WRITE', pw);
-          document.getElementById('writeStateMod').textContent='SBLOCCATE';
-          alert('Operazioni protette sbloccate ✅');
-        } else {
-          alert('Password scrittura non valida oppure backend non raggiungibile.');
-        }
-      });
-    </script>
-    
   </main>
 
   <footer><small>© 2025 • HEMOZILLA</small></footer>
@@ -131,8 +104,8 @@
     document.getElementById('btnListAll').addEventListener('click', async()=>{ const res=await apiPost('listTAVI_General', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
     document.getElementById('btnListProcedures').addEventListener('click', async()=>{ const res=await apiPost('listTAVI_Procedures', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
     document.getElementById('btnListFU').addEventListener('click', async()=>{ const res=await apiPost('listTAVI_FollowUp', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
-    document.getElementById('formNew').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addTAVI_Patient', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgNew').textContent = r.ok?('Inserito ✅ — pt_id: '+(r.pt_id||'')):(r.error||'Errore'); if(r.ok) e.target.reset(); });
-    document.getElementById('formUrg').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addTAVI_Urgency', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgUrg').textContent = r.ok?('Inserita ✅ — pt_id: '+(r.pt_id||'')):(r.error||'Errore'); if(r.ok) e.target.reset(); });
+    document.getElementById('formNew').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addTAVI_Patient', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgNew').textContent = r.ok?'Inserito ✅':(r.error||'Errore'); if(r.ok) e.target.reset(); });
+    document.getElementById('formUrg').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addTAVI_Urgency', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgUrg').textContent = r.ok?'Inserita ✅':(r.error||'Errore'); if(r.ok) e.target.reset(); });
     document.getElementById('formUpdate').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPost('updateTAVI_FieldRev', payload, sessionStorage.getItem('PASS_APP')); document.getElementById('msgUpd').textContent = r.ok?'Aggiornato ✅ (rev '+r.rev+')':(r.error||'Errore'); });
     document.getElementById('btnFetch').addEventListener('click', async ()=>{ const pt=document.querySelector('#formUpdate [name=pt_id]').value; if(!pt){ document.getElementById('msgFetch').textContent='Inserisci pt_id'; return;} const r=await apiPost('getTAVI_ById', {pt_id:pt}, sessionStorage.getItem('PASS_APP')); if(r.ok){ document.querySelector('#formUpdate [name=rev]').value = r.data.rev || 0; document.getElementById('msgFetch').textContent='Prefill OK'; } else { document.getElementById('msgFetch').textContent='Non trovato'; } });
     document.getElementById('formExec').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('certifyTAVI_ExecutedRev', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgExec').textContent = r.ok?('Registrata ✅ (rev '+r.rev+')'):(r.error||'Errore'); });
