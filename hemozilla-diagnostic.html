@@ -1,0 +1,177 @@
+
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HEMOZILLA • Diagnostica Backend</title>
+<style>
+body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#0d1117;color:#e6edf3}
+main{max-width:1000px;margin:0 auto;padding:16px;display:grid;gap:12px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:12px}
+label{display:block;margin:.4rem 0 .2rem}
+input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #30363d;background:#0b0f14;color:#e6edf3}
+button{border:0;border-radius:8px;padding:10px 14px;background:#b91c1c;color:#fff;font-weight:700;cursor:pointer}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+pre{white-space:pre-wrap;background:#0b0f14;border:1px solid #30363d;border-radius:8px;padding:8px;overflow:auto;max-height:300px}
+small{opacity:.8}
+</style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <h2>Diagnostica HEMOZILLA</h2>
+    <p>Usa questa pagina per verificare la comunicazione con i tre Apps Script e capire perché l'inserimento non scrive nel foglio.</p>
+  </section>
+
+  <section class="card">
+    <h3>1) Config URL backend</h3>
+    <div class="row">
+      <div style="flex:1;min-width:260px">
+        <label>URL TAVI</label>
+        <input id="urlTAVI" value="https://script.google.com/macros/s/AKfycbxVYpirjmGNHYU_xkZ3d2pmbQo2at_D1rATUpJ9gE6DL1p1i___dotHegMF40q-S6fd/exec">
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>URL TEER</label>
+        <input id="urlTEER" value="https://script.google.com/macros/s/AKfycbx0fyOre2iqCVTTUYaq8fnhi6c3_j27qh7j5lCyyUZjbZyex7OZ4qzZ3hzNDrKgZWRx9w/exec">
+      </div>
+      <div style="flex:1;min-width:260px">
+        <label>URL LAAC</label>
+        <input id="urlLAAC" value="https://script.google.com/macros/s/AKfycbzSMlZGuBMAbcDpTBGLhnlSWJJhhPGETPoO8eBvw4b_Pn9sQIyFxHTrL27bG-3j3IU1/exec">
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button onclick="setMod('TAVI')">Seleziona TAVI</button>
+      <button onclick="setMod('TEER')">Seleziona TEER</button>
+      <button onclick="setMod('LAAC')">Seleziona LAAC</button>
+      <small>Modulo selezionato: <code id="which">—</code></small>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>2) Password</h3>
+    <div class="row">
+      <div style="flex:1;min-width:240px">
+        <label>passApp</label>
+        <input id="passApp" placeholder="emodinamica" value="emodinamica">
+      </div>
+      <div style="flex:1;min-width:240px">
+        <label>passWrite</label>
+        <input id="passWrite" placeholder="strutturale" value="strutturale">
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button onclick="call('pingApp')">Test pingApp</button>
+      <button onclick="call('pingWrite')">Test pingWrite</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>3) Liste e inserimento</h3>
+    <div class="row">
+      <button onclick="call('listGeneral')">List * Generale</button>
+      <button onclick="call('listActive')">List * ListaAttiva</button>
+      <button onclick="call('listEmergencies')">List * Urgenze</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div style="flex:1;min-width:220px">
+        <label>pt_id (metti un ID di prova, es. TEST-001)</label>
+        <input id="ptid" value="TEST-001">
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label>center</label>
+        <input id="center" value="ISMETT">
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label>surname</label>
+        <input id="surname" value="Rossi">
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label>name</label>
+        <input id="name" value="Mario">
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button onclick="call('addPatient')">Prova add*Patient</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Richiesta inviata</h3>
+    <pre id="req">{}</pre>
+  </section>
+  <section class="card">
+    <h3>Risposta ricevuta</h3>
+    <pre id="res">{}</pre>
+  </section>
+</main>
+
+<script>
+let MOD = null;
+let URLS = { TAVI: '', TEER: '', LAAC: '' };
+
+function setMod(m){
+  URLS.TAVI = document.getElementById('urlTAVI').value.trim();
+  URLS.TEER = document.getElementById('urlTEER').value.trim();
+  URLS.LAAC = document.getElementById('urlLAAC').value.trim();
+  MOD = m;
+  document.getElementById('which').textContent = m + ' → ' + URLS[m];
+}
+
+function post(url, body){
+  document.getElementById('req').textContent = JSON.stringify(body, null, 2);
+  return fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)})
+    .then(r => r.text())
+    .then(t => {
+      let j; try{ j=JSON.parse(t) }catch(e){ j={ok:false, error:'Non JSON', raw:t} }
+      document.getElementById('res').textContent = JSON.stringify(j, null, 2);
+      return j;
+    })
+    .catch(err => {
+      const j = {ok:false, error:String(err)};
+      document.getElementById('res').textContent = JSON.stringify(j, null, 2);
+      return j;
+    });
+}
+
+function actionName(kind){
+  // costruisce il nome azione in entrambe le varianti: con underscore e senza
+  const ns = MOD + '_';
+  const nsNoUnd = MOD;
+  const map = {
+    pingApp: 'pingApp',
+    pingWrite: 'pingWrite',
+    listGeneral: ['list'+ns+'General','list'+nsNoUnd+'General'],
+    listActive: ['list'+ns+'Active','list'+nsNoUnd+'Active'],
+    listEmergencies: ['list'+ns+'Emergencies','list'+nsNoUnd+'Emergencies'],
+    addPatient: ['add'+ns+'Patient','add'+nsNoUnd+'Patient']
+  };
+  return map[kind];
+}
+
+async function call(kind){
+  if(!MOD){ alert('Seleziona prima TAVI/TEER/LAAC.'); return; }
+  const url = URLS[MOD];
+  const passApp = document.getElementById('passApp').value.trim();
+  const passWrite = document.getElementById('passWrite').value.trim();
+  const payload = {};
+
+  if(kind==='addPatient'){
+    payload.pt_id = document.getElementById('ptid').value.trim();
+    payload.center = document.getElementById('center').value.trim();
+    payload.surname = document.getElementById('surname').value.trim();
+    payload.name = document.getElementById('name').value.trim();
+  }
+
+  const acts = actionName(kind);
+  const tryActions = Array.isArray(acts) ? acts : [acts];
+  let last = null;
+  for (const a of tryActions){
+    last = await post(url, {action:a, payload, passApp, passWrite});
+    if(last && last.ok) return;
+  }
+  // se tutte falliscono, last contiene l'ultimo errore
+}
+</script>
+</body>
+</html>
