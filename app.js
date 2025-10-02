@@ -9,4 +9,25 @@ function saveURL(k){ const el=document.getElementById('url'+k); if(!el) return; 
 // NEW: store password locally without ping (backend will be validated on first API call inside module pages)
 loginForm?.addEventListener('submit', async (e)=>{ e.preventDefault(); const p=passApp.value.trim(); if(!p){ loginMsg.textContent='Inserisci la password'; return; } sessionStorage.setItem('PASS_APP', p); setLoggedIn(true); loginMsg.textContent='OK'; });
 // Write unlock still validates against backend of currently selected module (if any)
-btnSetWrite?.addEventListener('click', async ()=>{ const pw=passWrite.value.trim(); const r=await apiPost('pingWrite', {}, sessionStorage.getItem('PASS_APP'), pw); if(r.ok){ sessionStorage.setItem('PASS_WRITE', pw); writeState.textContent='SBLOCCATE'; writeState.classList.remove('warn'); writeState.classList.add('ok'); } else { sessionStorage.removeItem('PASS_WRITE'); writeState.textContent='BLOCCATE'; writeState.classList.add('warn'); } });
+
+// Sblocco scrittura con feedback chiaro
+btnSetWrite?.addEventListener('click', async ()=>{
+  const pw = passWrite.value.trim();
+  const api = sessionStorage.getItem('API_URL');
+  if(!api){
+    alert('Seleziona prima un modulo (TAVI/TEER/LAAC) e assicurati che l\'URL backend sia impostato).');
+    return;
+  }
+  const r = await apiPost('pingWrite', {}, sessionStorage.getItem('PASS_APP'), pw);
+  if(r && r.ok){
+    sessionStorage.setItem('PASS_WRITE', pw);
+    writeState.textContent='SBLOCCATE';
+    writeState.classList.remove('warn'); writeState.classList.add('ok');
+    alert('Operazioni protette sbloccate ✅');
+  }else{
+    sessionStorage.removeItem('PASS_WRITE');
+    writeState.textContent='BLOCCATE';
+    writeState.classList.add('warn');
+    alert('Password scrittura non valida oppure backend non raggiungibile.');
+  }
+});
