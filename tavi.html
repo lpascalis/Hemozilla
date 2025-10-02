@@ -1,1 +1,114 @@
-/* placeholder tavi.html */
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>HEMOZILLA • TAVI</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="assets/icons/icon-64x64.png" sizes="64x64">
+</head>
+<body>
+  <header>
+    <img src="assets/icons/icon-180x180.png" alt="HEMOZILLA logo" class="logo">
+    <h1>HEMOZILLA — TAVI</h1>
+    <p class="sub">Lista, urgenze, procedure, follow-up</p>
+  </header>
+  <main>
+    <section class="card">
+      <a href="./" class="badge">⟵ Moduli</a>
+      <div class="row" style="margin-top:8px">
+        <span class="small">Backend: <code id="whichUrl"></code></span>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button id="btnListActive" class="ghost">Lista attiva</button>
+        <button id="btnListUrgent" class="ghost">Urgenze</button>
+        <button id="btnListAll" class="ghost">Tutti (Generale)</button>
+        <button id="btnListProcedures" class="ghost">Procedure eseguite</button>
+        <button id="btnListFU" class="ghost">Follow-up</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Nuovo paziente in lista attiva (protetto)</h2>
+      <form id="formNew" class="grid grid-2">
+        <div><label>pt_id</label><input name="pt_id" required></div>
+        <div><label>Centro</label><input name="center" placeholder="ISMETT"></div>
+        <div><label>Cognome</label><input name="surname"></div>
+        <div><label>Nome</label><input name="name"></div>
+        <div><label>Data nascita</label><input name="birth_date" type="date"></div>
+        <div><label>Sesso</label><select name="sex"><option></option><option>M</option><option>F</option></select></div>
+        <div><label>Note</label><textarea name="notes" rows="2"></textarea></div>
+        <div style="grid-column:1/-1" class="row"><button type="submit">Inserisci in lista attiva</button><span id="msgNew" class="muted small"></span></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Nuova Urgenza (protetto)</h2>
+      <form id="formUrg" class="grid grid-2">
+        <div><label>pt_id</label><input name="pt_id" required></div>
+        <div><label>Livello urgenza</label><select name="urgency_level"><option>urgent</option><option>emergency</option><option>salvage</option></select></div>
+        <div><label>Motivo</label><input name="reason"></div>
+        <div><label>Centro</label><input name="center"></div>
+        <div><label>Operatore</label><input name="assigned_operator"></div>
+        <div style="grid-column:1/-1"><label>Note triage</label><textarea name="triage_notes" rows="2"></textarea></div>
+        <div style="grid-column:1/-1" class="row"><button type="submit">Inserisci in urgenze</button><span id="msgUrg" class="muted small"></span></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Aggiorna dati clinici (con controllo versione)</h2>
+      <form id="formUpdate" class="grid grid-2">
+        <div><label>pt_id</label><input name="pt_id" required></div>
+        <div><label>rev corrente</label><input name="rev" required placeholder="es. 0"></div>
+        <div><label>Campo</label>
+          <select name="field">
+            <option>height_cm</option><option>weight_kg</option><option>creatinine_mg_dl</option><option>lvef_pct</option><option>nyha</option>
+          </select>
+        </div>
+        <div style="grid-column:1/-1"><label>Valore</label><input name="value"></div>
+        <div style="grid-column:1/-1" class="row"><button type="submit">Salva</button><span id="msgUpd" class="muted small"></span></div>
+      </form>
+      <div class="row small"><button id="btnFetch" class="ghost">Recupera paziente (prefill)</button><span id="msgFetch" class="muted small"></span></div>
+    </section>
+
+    <section class="card">
+      <h2>Certifica procedura eseguita (protetto)</h2>
+      <form id="formExec" class="grid grid-2">
+        <div><label>pt_id</label><input name="pt_id" required></div>
+        <div><label>rev corrente</label><input name="rev" required placeholder="es. 0"></div>
+        <div><label>Data procedura</label><input name="procedure_date" type="date" required></div>
+        <div><label>Device</label><input name="device_brand"></div>
+        <div><label>Size</label><input name="device_size_mm" type="number" step="0.1"></div>
+        <div style="grid-column:1/-1" class="row"><button type="submit">Conferma esecuzione</button><span id="msgExec" class="muted small"></span></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Elenco</h2>
+      <div id="listWrap" class="muted small">Premi un pulsante elenco sopra.</div>
+    </section>
+  </main>
+
+  <footer><small>© 2025 • HEMOZILLA</small></footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="api.js"></script>
+  <script>
+    if(!sessionStorage.getItem('PASS_APP')) location.href='./';
+    document.getElementById('whichUrl').textContent = (sessionStorage.getItem('API_URL')||'') || 'non impostato';
+    const listWrap = document.getElementById('listWrap');
+    function renderTable(rows){ if(!rows||!rows.length){ listWrap.textContent='Nessun dato'; return;} const cols=Object.keys(rows[0]); let html='<table class="table"><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'; rows.forEach(r=>{ html+='<tr>'+cols.map(c=>'<td>'+(r[c]??'')+'</td>').join('')+'</tr>';}); html+='</tbody></table>'; listWrap.innerHTML=html; }
+    document.getElementById('btnListActive').addEventListener('click', async()=>{ const res=await apiPost('listTAVI_Active', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
+    document.getElementById('btnListUrgent').addEventListener('click', async()=>{ const res=await apiPost('listTAVI_Emergencies', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
+    document.getElementById('btnListAll').addEventListener('click', async()=>{ const res=await apiPost('listTAVI_General', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
+    document.getElementById('btnListProcedures').addEventListener('click', async()=>{ const res=await apiPost('listTAVI_Procedures', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
+    document.getElementById('btnListFU').addEventListener('click', async()=>{ const res=await apiPost('listTAVI_FollowUp', {}, sessionStorage.getItem('PASS_APP')); renderTable(res.ok?res.data:[]); });
+    document.getElementById('formNew').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addTAVI_Patient', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgNew').textContent = r.ok?'Inserito ✅':(r.error||'Errore'); if(r.ok) e.target.reset(); });
+    document.getElementById('formUrg').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('addTAVI_Urgency', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgUrg').textContent = r.ok?'Inserita ✅':(r.error||'Errore'); if(r.ok) e.target.reset(); });
+    document.getElementById('formUpdate').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPost('updateTAVI_FieldRev', payload, sessionStorage.getItem('PASS_APP')); document.getElementById('msgUpd').textContent = r.ok?'Aggiornato ✅ (rev '+r.rev+')':(r.error||'Errore'); });
+    document.getElementById('btnFetch').addEventListener('click', async ()=>{ const pt=document.querySelector('#formUpdate [name=pt_id]').value; if(!pt){ document.getElementById('msgFetch').textContent='Inserisci pt_id'; return;} const r=await apiPost('getTAVI_ById', {pt_id:pt}, sessionStorage.getItem('PASS_APP')); if(r.ok){ document.querySelector('#formUpdate [name=rev]').value = r.data.rev || 0; document.getElementById('msgFetch').textContent='Prefill OK'; } else { document.getElementById('msgFetch').textContent='Non trovato'; } });
+    document.getElementById('formExec').addEventListener('submit', async (e)=>{ e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); const r=await apiPostProtected('certifyTAVI_ExecutedRev', payload, sessionStorage.getItem('PASS_APP'), sessionStorage.getItem('PASS_WRITE')); document.getElementById('msgExec').textContent = r.ok?('Registrata ✅ (rev '+r.rev+')'):(r.error||'Errore'); });
+  </script>
+</body>
+</html>
